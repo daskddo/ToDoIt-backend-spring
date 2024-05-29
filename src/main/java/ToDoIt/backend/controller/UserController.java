@@ -108,7 +108,7 @@ public class UserController {
         }
         token = token.substring(7);
 
-        String userEmail = jwtTokenUtil.extractUsername(token);
+        String userEmail = jwtTokenUtil.extractUsername(token); // jwt토큰에서 email받아오기
         Users user = userService.findUserByEmail(userEmail);
         if (user != null) {
             userService.changePassword(userEmail, request.getPassword());
