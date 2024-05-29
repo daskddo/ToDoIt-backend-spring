@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+</head>
+<body>
+<h2>User Registration</h2>
+<form id="registrationForm">
+    <label for="userID">Username:</label>
+    <input type="text" id="userID" name="userID" required><br><br>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required><br><br>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br><br>
+
+    <label for="phone">Phone:</label>
+    <input type="text" id="phone" name="phone" required><br><br>
+
+    <button type="button" onclick="registerUser()">Register</button>
+</form>
+
+<script>
+    function registerUser() {
+        var form = document.getElementById("registrationForm");
+        var userData = {
+            "userID": form.elements["userID"].value,
+            "password": form.elements["password"].value,
+            "email": form.elements["email"].value,
+            "phone": form.elements["phone"].value
+        };
+
+        fetch("/users/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(userData)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.text();
+            })
+            .then(data => {
+                console.log(data);
+                // 서버로부터 응답을 받은 후 처리할 작업을 여기에 추가합니다.
+            })
+            .catch(error => {
+                console.error("There was an error with the fetch operation:", error);
+            });
+    }
+</script>
+</body>
+</html>

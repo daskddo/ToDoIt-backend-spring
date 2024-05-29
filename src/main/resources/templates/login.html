@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+<h2>Login</h2>
+<form id="loginForm">
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br><br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required><br><br>
+    <button type="button" onclick="login()">Login</button>
+</form>
+
+<script>
+    function login() {
+        var form = document.getElementById("loginForm");
+        var userData = {
+            "email": form.elements["email"].value,
+            "password": form.elements["password"].value
+        };
+
+        fetch("/users/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(userData)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.text();
+            })
+            .then(data => {
+                console.log(data);
+                // 로그인 성공 또는 실패에 따른 처리를 여기에 추가합니다.
+            })
+            .catch(error => {
+                console.error("There was an error with the fetch operation:", error);
+            });
+    }
+</script>
+</body>
+</html>
