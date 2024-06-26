@@ -31,6 +31,7 @@ public class JwtTokenUtil {
     public String generateAccessToken(Users user) {
         return Jwts.builder()
                 .setSubject(user.getEmail())
+                .claim("role", user.getRole().name())
                 .setIssuer("ToDoIt")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
@@ -54,6 +55,10 @@ public class JwtTokenUtil {
 
     public String extractUsername(String token) {
         return getClaimFromToken(token, Claims::getSubject);
+    }
+
+    public String extractRole(String token) {
+        return getClaimFromToken(token, claims -> claims.get("role", String.class));
     }
 
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
