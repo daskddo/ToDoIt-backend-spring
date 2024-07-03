@@ -30,4 +30,8 @@ public class ToDo {
     @NotNull(message = "Due date is required")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dueDate;
+
+    // String uuid
+    @Column(name = "Uuid")
+    private String uuid;
 }

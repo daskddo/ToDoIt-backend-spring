@@ -42,4 +42,8 @@ public class PersonalSchedules {
     @Column(name = "Color", nullable = false)
     @NotEmpty(message = "Color is required")
     private String color;
+
+    // String uuid
+    @Column(name = "Uuid")
+    private String uuid;
 }
