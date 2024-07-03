@@ -5,7 +5,7 @@ import ToDoIt.backend.repository.UserRepository;
 import ToDoIt.backend.DTO.PersonalScheduleDTO;
 import ToDoIt.backend.domain.PersonalSchedules;
 import ToDoIt.backend.domain.Users;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,16 +13,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PersonalScheduleService {
     private final PersonalSchedulesRepository personalSchedulesRepository;
     private final UserRepository userRepository;
-
-    @Autowired
-    public PersonalScheduleService(PersonalSchedulesRepository personalSchedulesRepository, UserRepository userRepository) {
-        this.personalSchedulesRepository = personalSchedulesRepository;
-        this.userRepository = userRepository;
-    }
 
     public List<PersonalScheduleDTO> getPersonalSchedulesByEmail(String email) {
         List<PersonalSchedules> schedules = personalSchedulesRepository.findByUserEmail(email);

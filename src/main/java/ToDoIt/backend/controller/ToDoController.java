@@ -5,27 +5,22 @@ import ToDoIt.backend.domain.Users;
 import ToDoIt.backend.jwt.JwtTokenUtil;
 import ToDoIt.backend.service.ToDoService;
 import ToDoIt.backend.service.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
+@Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/todos")
 public class ToDoController {
     private final ToDoService toDoService;
     private final UserService userService;
     private final JwtTokenUtil jwtTokenUtil;
-    private static final Logger logger = LoggerFactory.getLogger(PersonalScheduleController.class);
-
-    public ToDoController(ToDoService toDoService, UserService userService, JwtTokenUtil jwtTokenUtil) {
-        this.toDoService = toDoService;
-        this.userService = userService;
-        this.jwtTokenUtil = jwtTokenUtil;
-    }
 
     @GetMapping("/all")
     public ResponseEntity<?> getAllToDos(@RequestHeader("Authorization") String token) {
@@ -43,7 +38,7 @@ public class ToDoController {
 
             return ResponseEntity.ok(toDoService.getAllToDosForUser(userEmail));
         }catch (Exception e) {
-            logger.error("Error during fetching all todos", e);
+            log.error("Error during fetching all todos", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
         }
     }
@@ -65,7 +60,7 @@ public class ToDoController {
             LocalDate today = LocalDate.now();
             return ResponseEntity.ok(toDoService.getTodayToDosForUser(userEmail,today));
         }catch (Exception e) {
-            logger.error("Error during fetching todos", e);
+            log.error("Error during fetching todos", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
         }
     }
@@ -87,7 +82,7 @@ public class ToDoController {
             toDoService.createToDoForUser(userEmail,toDoDTO);
             return ResponseEntity.ok("{\"resultCode\": 200}");
         }catch (Exception e){
-            logger.error("Error during todo creation", e);
+            log.error("Error during todo creation", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
         }
     }
@@ -109,7 +104,7 @@ public class ToDoController {
             toDoService.updateToDoForUser(id, toDoDTO);
             return ResponseEntity.ok("{\"resultCode\": 200}");
         }catch (Exception e) {
-            logger.error("Error during todo update", e);
+            log.error("Error during todo update", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
         }
     }
@@ -131,7 +126,7 @@ public class ToDoController {
             toDoService.deleteToDoForUser(id);
             return ResponseEntity.ok("{\"resultCode\": 200}");
         }catch (Exception e) {
-            logger.error("Error during todo deletion", e);
+            log.error("Error during todo deletion", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
         }
     }

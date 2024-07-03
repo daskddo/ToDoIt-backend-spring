@@ -6,32 +6,25 @@ import ToDoIt.backend.domain.Users;
 import ToDoIt.backend.jwt.JwtTokenUtil;
 import ToDoIt.backend.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
     private final JwtTokenUtil jwtTokenUtil;
     private final PasswordEncoder passwordEncoder;
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-
-    @Autowired
-    public UserController(UserService userService, PasswordEncoder passwordEncoder, JwtTokenUtil jwtTokenUtil) {
-        this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenUtil = jwtTokenUtil;
-    }
 
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody UserDTO request) {
-        logger.info("Received login request with email: {} and password: {}", request.getEmail(), request.getPassword());
+        log.info("Received login request with email: {} and password: {}", request.getEmail(), request.getPassword());
         Users user = userService.login(request.getEmail(), request.getPassword());
 
         if (user != null) {
@@ -64,7 +57,7 @@ public class UserController {
 
             return ResponseEntity.ok("{\"resultCode\": 200}");
         } catch (Exception e) {
-            logger.error("Error during registration", e);
+            log.error("Error during registration", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
         }
     }
@@ -80,7 +73,7 @@ public class UserController {
 
             return ResponseEntity.ok("{\"email\": \"" + user.getEmail() + "\", \"resultCode\": 200}");
         } catch (Exception e) {
-            logger.error("Error during email find", e);
+            log.error("Error during email find", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
         }
     }
@@ -96,7 +89,7 @@ public class UserController {
 
             return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
         } catch (Exception e) {
-            logger.error("Error during password find", e);
+            log.error("Error during password find", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
@@ -132,7 +125,7 @@ public class UserController {
 
             return ResponseEntity.ok("{\"resultCode\": 200}");
         } catch (Exception e) {
-            logger.error("Error during user update", e);
+            log.error("Error during user update", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
         }
     }
@@ -150,7 +143,7 @@ public class UserController {
 
             return ResponseEntity.ok("{\"resultCode\": 200}");
         } catch (Exception e) {
-            logger.error("Error during user deletion", e);
+            log.error("Error during user deletion", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
         }
     }

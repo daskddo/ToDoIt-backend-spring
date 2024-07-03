@@ -1,8 +1,10 @@
 package ToDoIt.backend.service;
 
+import ToDoIt.backend.DTO.KakaoUserInfoResponseDto;
+import ToDoIt.backend.domain.Role;
 import ToDoIt.backend.repository.UserRepository;
 import ToDoIt.backend.domain.Users;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,16 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Transactional
     public void saveUser(Users user) {
@@ -39,8 +36,22 @@ public class UserService {
         }
     }
 
-    public Users findUserById(Long userId) {
-        return userRepository.findById(userId).orElse(null);
+    @Transactional
+    public Users findOrCreateUser(KakaoUserInfoResponseDto userInfo) {
+        Users existingUser = userRepository.findByEmail(userInfo.getKakaoAccount().getEmail());
+        if (existingUser != null) {
+            return existingUser;
+        }
+
+        Users newUser = new Users();
+        newUser.setEmail(userInfo.getKakaoAccount().getEmail());
+        newUser.setUserID(userInfo.getKakaoAccount().getProfile().getNickName());
+        newUser.setPassword(passwordEncoder.encode("password")); // 기본 비밀번호
+        newUser.setPhone("010-0000-0000"); // 기본 핸드폰 번호
+        newUser.setRole(Role.USER); // 기본 역할 설정
+
+        userRepository.save(newUser);
+        return newUser;
     }
 
     public List<Users> findAllUsers() {
@@ -85,5 +96,4 @@ public class UserService {
         Users user = userRepository.findByEmail(email);
         user.setPassword(passwordEncoder.encode(newPassword));
     }
-
 }

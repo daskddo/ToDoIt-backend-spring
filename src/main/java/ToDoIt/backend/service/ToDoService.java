@@ -1,11 +1,11 @@
 package ToDoIt.backend.service;
 
-import ToDoIt.backend.DTO.PersonalScheduleDTO;
 import ToDoIt.backend.DTO.ToDoDTO;
 import ToDoIt.backend.domain.ToDo;
 import ToDoIt.backend.domain.Users;
 import ToDoIt.backend.repository.ToDoRepository;
 import ToDoIt.backend.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,14 +14,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ToDoService {
     private final ToDoRepository toDoRepository;
     private final UserRepository userRepository;
-
-    public ToDoService(ToDoRepository toDoRepository, UserRepository userRepository) {
-        this.toDoRepository = toDoRepository;
-        this.userRepository = userRepository;
-    }
 
     @Transactional
     public List<ToDoDTO> getAllToDosForUser(String email) {
@@ -60,12 +56,12 @@ public class ToDoService {
     }
 
     @Transactional
-    public ToDo updateToDoForUser(Long id, ToDoDTO toDoDTO) {
+    public void updateToDoForUser(Long id, ToDoDTO toDoDTO) {
         ToDo existingToDo = toDoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("ToDo not found"));
 
         existingToDo.setTask(toDoDTO.getTask());
         existingToDo.setDueDate(toDoDTO.getDueDate());
-        return toDoRepository.save(existingToDo);
+        toDoRepository.save(existingToDo);
     }
 
     @Transactional

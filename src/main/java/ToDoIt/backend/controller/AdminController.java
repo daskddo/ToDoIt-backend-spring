@@ -4,8 +4,8 @@ import ToDoIt.backend.domain.Role;
 import ToDoIt.backend.domain.Users;
 import ToDoIt.backend.jwt.JwtTokenUtil;
 import ToDoIt.backend.service.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,17 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/admin")
 public class AdminController {
     private final UserService userService;
     private final JwtTokenUtil jwtTokenUtil;
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-
-    public AdminController(UserService userService, JwtTokenUtil jwtTokenUtil) {
-        this.userService = userService;
-        this.jwtTokenUtil = jwtTokenUtil;
-    }
 
     @GetMapping("/all")
     public ResponseEntity<?> getAllUsers(@RequestHeader("Authorization") String token) {
@@ -45,7 +41,7 @@ public class AdminController {
             List<Users> allUsers = userService.findAllUsers();
             return ResponseEntity.ok(allUsers);
         } catch (Exception e) {
-            logger.error("Error during fetching all users", e);
+            log.error("Error during fetching all users", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
         }
     }
