@@ -40,6 +40,6 @@ public class KakaoLoginController {
         Users user = userService.findOrCreateUser(userInfo);
         String jwtToken = jwtTokenUtil.generateAccessToken(user);
 
-        return ResponseEntity.ok(jwtToken);
+        return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200, \"token\": \"" + jwtToken + "\"}");
     }
 }
