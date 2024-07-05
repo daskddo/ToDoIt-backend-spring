@@ -87,24 +87,18 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"resultCode\": 404}");
             }
 
-            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
+            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200, \"email\": \"" + user.getEmail() + "\"}");
         } catch (Exception e) {
             log.error("Error during password find", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 
-    @PutMapping("/passFind")
-    public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String token, @RequestBody ChangePasswordDTO request) {
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
-        }
-        token = token.substring(7);
-
-        String userEmail = jwtTokenUtil.extractUsername(token); // jwt토큰에서 email받아오기
-        Users user = userService.findUserByEmail(userEmail);
+    @PutMapping("/passReset")
+    public ResponseEntity<String> resetPassword(@RequestBody ChangePasswordDTO request) {
+        Users user = userService.findUserByEmail(request.getEmail());
         if (user != null) {
-            userService.changePassword(userEmail, request.getPassword());
+            userService.changePassword(user.getEmail(), request.getPassword());
             return ResponseEntity.ok("{\"resultCode\": 200, \"message\": \"Password changed successfully\"}");
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"resultCode\": 600, \"message\": \"User not found\"}");
