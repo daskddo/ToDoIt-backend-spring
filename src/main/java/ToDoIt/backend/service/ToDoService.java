@@ -44,6 +44,18 @@ public class ToDoService {
     }
 
     @Transactional
+    public List<ToDoDTO> getAnytimeTasks(String email) {
+        List<ToDo> toDos = toDoRepository.findByUserEmailAndDueDateIsNull(email);
+
+        // ToDoDTO로 변환
+        return toDos.stream().map(toDo -> new ToDoDTO(
+                toDo.getId(),
+                toDo.getTask(),
+                toDo.getDueDate()
+        )).collect(Collectors.toList());
+    }
+
+    @Transactional
     public void createToDoForUser(String email, ToDoDTO toDoDTO) {
         Users user = userRepository.findByEmail(email);
 

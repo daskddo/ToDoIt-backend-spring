@@ -65,6 +65,27 @@ public class ToDoController {
         }
     }
 
+    @GetMapping("/anytime")
+    public ResponseEntity<?> getAnytimeTasks(@RequestHeader("Authorization") String token) {
+        try {
+            if (token == null || !token.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+            }
+            token = token.substring(7);
+
+            String userEmail = jwtTokenUtil.extractUsername(token);
+            Users user = userService.findUserByEmail(userEmail);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"resultCode\": 404, \"message\": \"User not found\"}");
+            }
+
+            return ResponseEntity.ok(toDoService.getAnytimeTasks(userEmail));
+        }catch (Exception e) {
+            log.error("Error during fetching todos", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+        }
+    }
+
     @PostMapping
     public ResponseEntity<?> createToDo(@RequestHeader("Authorization") String token, @RequestBody ToDoDTO toDoDTO) {
         try {

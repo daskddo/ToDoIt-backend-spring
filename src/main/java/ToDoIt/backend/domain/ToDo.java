@@ -26,8 +26,7 @@ public class ToDo {
     @NotEmpty(message = "Task is required")
     private String task;
 
-    @Column(name = "DueDate", nullable = false)
-    @NotNull(message = "Due date is required")
+    @Column(name = "DueDate")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dueDate;
 
