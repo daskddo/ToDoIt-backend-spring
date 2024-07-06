@@ -7,6 +7,7 @@ import ToDoIt.backend.service.KakaoService;
 import ToDoIt.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,15 +32,21 @@ public class KakaoLoginController {
     // access token을 json으로 받을 때
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody Map<String, String> request) {
-        String accessToken = request.get("accessToken");
-        KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(accessToken);
+        try {
+            String accessToken = request.get("accessToken");
+            KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(accessToken);
 
-        log.info("User Email: {}", userInfo.getKakaoAccount().getEmail());
-        log.info("User Nickname: {}", userInfo.getKakaoAccount().getProfile().getNickName());
+            log.info("User Email: {}", userInfo.getKakaoAccount().getEmail());
+            log.info("User Nickname: {}", userInfo.getKakaoAccount().getProfile().getNickName());
 
-        Users user = userService.findOrCreateUser(userInfo);
-        String jwtToken = jwtTokenUtil.generateAccessToken(user);
+            Users user = userService.findOrCreateUser(userInfo);
+            String jwtToken = jwtTokenUtil.generateAccessToken(user);
 
-        return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200, \"token\": \"" + jwtToken + "\"}");
+            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200, \"token\": \"" + jwtToken + "\"}");
+        } catch (Exception e) {
+            log.error("Error during login", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
+        }
+
     }
 }

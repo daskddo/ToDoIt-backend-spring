@@ -24,13 +24,13 @@ public class PersonalScheduleController {
         try {
             Users user = userService.findUserByEmail(email);
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"resultCode\": 404}");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"result\": 0, \"resultCode\": 404}");
             }
 
             return ResponseEntity.ok(personalScheduleService.getPersonalSchedulesByEmail(email));
         } catch (Exception e) {
             log.error("Error during fetching schedules", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 
@@ -39,14 +39,14 @@ public class PersonalScheduleController {
         try {
             Users user = userService.findUserByEmail(email);
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"resultCode\": 404}");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"result\": 0, \"resultCode\": 404}");
             }
 
             personalScheduleService.createPersonalSchedule(email, scheduleDTO);
-            return ResponseEntity.ok("{\"resultCode\": 200}");
+            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
         } catch (Exception e) {
             log.error("Error during schedule creation", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 
@@ -55,14 +55,14 @@ public class PersonalScheduleController {
         try {
             Users user = userService.findUserByEmail(email);
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"resultCode\": 404}");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"result\": 0, \"resultCode\": 404}");
             }
 
             personalScheduleService.updatePersonalSchedule(scheduleId, scheduleDTO);
-            return ResponseEntity.ok("{\"resultCode\": 200}");
+            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
         } catch (Exception e) {
             log.error("Error during schedule update", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 
@@ -71,14 +71,14 @@ public class PersonalScheduleController {
         try {
             Users user = userService.findUserByEmail(email);
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"resultCode\": 404}");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"result\": 0, \"resultCode\": 404}");
             }
 
             personalScheduleService.deletePersonalSchedule(scheduleId);
-            return ResponseEntity.ok("{\"resultCode\": 200}");
+            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
         } catch (Exception e) {
             log.error("Error during schedule deletion", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 }

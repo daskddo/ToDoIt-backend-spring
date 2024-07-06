@@ -42,7 +42,7 @@ public class AdminController {
             return ResponseEntity.ok(allUsers);
         } catch (Exception e) {
             log.error("Error during fetching all users", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 }

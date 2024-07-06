@@ -2,6 +2,7 @@ package ToDoIt.backend.controller;
 
 import ToDoIt.backend.DTO.ChangePasswordDTO;
 import ToDoIt.backend.DTO.UserDTO;
+import ToDoIt.backend.domain.Role;
 import ToDoIt.backend.domain.Users;
 import ToDoIt.backend.jwt.JwtTokenUtil;
 import ToDoIt.backend.service.UserService;
@@ -41,7 +42,7 @@ public class UserController {
             Users existingUser = userService.findUserByEmail(request.getEmail());
 
             if (existingUser != null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"resultCode\": 601}");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"result\": 0, \"resultCode\": 601}");
             }
 
             String encodedPassword = passwordEncoder.encode(request.getPassword());
@@ -51,14 +52,13 @@ public class UserController {
             newUser.setPassword(encodedPassword);
             newUser.setEmail(request.getEmail());
             newUser.setPhone(request.getPhone());
-            newUser.setRole(request.getRole());
+            newUser.setRole(Role.USER);
 
             userService.saveUser(newUser);
-
-            return ResponseEntity.ok("{\"resultCode\": 200}");
+            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
         } catch (Exception e) {
             log.error("Error during registration", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 
@@ -68,13 +68,13 @@ public class UserController {
             Users user = userService.findEmail(request.getPhone(), request.getUserID());
 
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"resultCode\": 404}");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"result\": 0, \"resultCode\": 404}");
             }
 
-            return ResponseEntity.ok("{\"email\": \"" + user.getEmail() + "\", \"resultCode\": 200}");
+            return ResponseEntity.ok("{\"email\": \"" + user.getEmail() + "\"}");
         } catch (Exception e) {
             log.error("Error during email find", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 
@@ -84,10 +84,10 @@ public class UserController {
             Users user = userService.findPass(request.getEmail(), request.getPhone(), request.getUserID());
 
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"resultCode\": 404}");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"result\": 0, \"resultCode\": 404}");
             }
 
-            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200, \"email\": \"" + user.getEmail() + "\"}");
+            return ResponseEntity.ok("{\"email\": \"" + user.getEmail() + "\"}");
         } catch (Exception e) {
             log.error("Error during password find", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"result\": 0, \"resultCode\": 600}");
@@ -96,31 +96,35 @@ public class UserController {
 
     @PutMapping("/passReset")
     public ResponseEntity<String> resetPassword(@RequestBody ChangePasswordDTO request) {
-        Users user = userService.findUserByEmail(request.getEmail());
-        if (user != null) {
+        try {
+            Users user = userService.findUserByEmail(request.getEmail());
+
+            if (user == null){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"result\": 0, \"resultCode\": 404}");
+            }
+
             userService.changePassword(user.getEmail(), request.getPassword());
-            return ResponseEntity.ok("{\"resultCode\": 200, \"message\": \"Password changed successfully\"}");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"resultCode\": 600, \"message\": \"User not found\"}");
+            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
+        }catch (Exception e) {
+            log.error("Error during password change", e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 
     @PutMapping("/infoChange/{email}")
     public ResponseEntity<String> updateUser(@PathVariable("email") String email, @RequestBody @Valid UserDTO request) {
-
         try {
             Users user = userService.findUserByEmail(email);
 
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"resultCode\": 404}");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"result\": 0, \"resultCode\": 404}");
             }
 
             userService.update(email, request.getPhone(), request.getUserID());
-
-            return ResponseEntity.ok("{\"resultCode\": 200}");
+            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
         } catch (Exception e) {
             log.error("Error during user update", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 
@@ -130,15 +134,14 @@ public class UserController {
             Users user = userService.findUserByEmail(email);
 
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"resultCode\": 404}");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"result\": 0, \"resultCode\": 404}");
             }
 
             userService.deleteUser(email);
-
-            return ResponseEntity.ok("{\"resultCode\": 200}");
+            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
         } catch (Exception e) {
             log.error("Error during user deletion", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 }

@@ -33,13 +33,13 @@ public class ToDoController {
             String userEmail = jwtTokenUtil.extractUsername(token);
             Users user = userService.findUserByEmail(userEmail);
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"resultCode\": 404, \"message\": \"User not found\"}");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"result\": 0, \"resultCode\": 404}");
             }
 
             return ResponseEntity.ok(toDoService.getAllToDosForUser(userEmail));
         }catch (Exception e) {
             log.error("Error during fetching all todos", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 
@@ -54,14 +54,14 @@ public class ToDoController {
             String userEmail = jwtTokenUtil.extractUsername(token);
             Users user = userService.findUserByEmail(userEmail);
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"resultCode\": 404, \"message\": \"User not found\"}");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"result\": 0, \"resultCode\": 404}");
             }
 
             LocalDate today = LocalDate.now();
             return ResponseEntity.ok(toDoService.getTodayToDosForUser(userEmail,today));
         }catch (Exception e) {
             log.error("Error during fetching todos", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 
@@ -76,13 +76,13 @@ public class ToDoController {
             String userEmail = jwtTokenUtil.extractUsername(token);
             Users user = userService.findUserByEmail(userEmail);
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"resultCode\": 404, \"message\": \"User not found\"}");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"result\": 0, \"resultCode\": 404}");
             }
 
             return ResponseEntity.ok(toDoService.getAnytimeTasks(userEmail));
         }catch (Exception e) {
             log.error("Error during fetching todos", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 
@@ -97,14 +97,14 @@ public class ToDoController {
             String userEmail = jwtTokenUtil.extractUsername(token);
             Users user = userService.findUserByEmail(userEmail);
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"resultCode\": 404, \"message\": \"User not found\"}");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"result\": 0, \"resultCode\": 404}");
             }
 
             toDoService.createToDoForUser(userEmail,toDoDTO);
-            return ResponseEntity.ok("{\"resultCode\": 200}");
+            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
         }catch (Exception e){
             log.error("Error during todo creation", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 
@@ -119,14 +119,14 @@ public class ToDoController {
             String userEmail = jwtTokenUtil.extractUsername(token);
             Users user = userService.findUserByEmail(userEmail);
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"resultCode\": 404, \"message\": \"User not found\"}");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"result\": 0, \"resultCode\": 404}");
             }
 
             toDoService.updateToDoForUser(id, toDoDTO);
-            return ResponseEntity.ok("{\"resultCode\": 200}");
+            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
         }catch (Exception e) {
             log.error("Error during todo update", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 
@@ -141,14 +141,14 @@ public class ToDoController {
             String userEmail = jwtTokenUtil.extractUsername(token);
             Users user = userService.findUserByEmail(userEmail);
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"resultCode\": 404, \"message\": \"User not found\"}");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"result\": 0, \"resultCode\": 404}");
             }
 
             toDoService.deleteToDoForUser(id);
-            return ResponseEntity.ok("{\"resultCode\": 200}");
+            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
         }catch (Exception e) {
             log.error("Error during todo deletion", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
         }
     }
 }
