@@ -1,5 +1,6 @@
 package ToDoIt.backend.controller;
 
+import ToDoIt.backend.DTO.ApiResponse;
 import ToDoIt.backend.DTO.ChangePasswordDTO;
 import ToDoIt.backend.DTO.UserDTO;
 import ToDoIt.backend.domain.Role;
@@ -7,7 +8,10 @@ import ToDoIt.backend.domain.Users;
 import ToDoIt.backend.jwt.JwtTokenUtil;
 import ToDoIt.backend.service.UserService;
 import jakarta.validation.Valid;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,124 +28,155 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody UserDTO request) {
+    public ResponseEntity<?> loginUser(@RequestBody UserDTO request) {
         log.info("Received login request with email: {} and password: {}", request.getEmail(), request.getPassword());
         Users user = userService.login(request.getEmail(), request.getPassword());
 
         if (user != null) {
             String token = jwtTokenUtil.generateAccessToken(user);
-            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200, \"token\": \"" + token + "\"}");
+            log.info("{\"result\": 1, \"resultCode\": 200, \"token\": \"{}\"}", token);
+            return ResponseEntity.ok(new ApiResponse2(1,200,token));
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"result\": 0, \"resultCode\": 600}");
+            log.info("{\"result\": 0, \"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,600));
         }
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody @Valid UserDTO request) {
+    public ResponseEntity<?> registerUser(@RequestBody @Valid UserDTO request) {
         try {
-            Users existingUser = userService.findUserByEmail(request.getEmail());
-
-            if (existingUser != null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"result\": 0, \"resultCode\": 601}");
-            }
-
             String encodedPassword = passwordEncoder.encode(request.getPassword());
 
             Users newUser = new Users();
-            newUser.setUserID(request.getUserID());
+            newUser.setNickname(request.getNickname());
             newUser.setPassword(encodedPassword);
             newUser.setEmail(request.getEmail());
             newUser.setPhone(request.getPhone());
             newUser.setRole(Role.USER);
 
             userService.saveUser(newUser);
-            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
+
+            log.info("{\"result\": 1, \"resultCode\": 200}");
+            return ResponseEntity.ok(new ApiResponse(1,200));
         } catch (Exception e) {
             log.error("Error during registration", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
+            if (e.getMessage().contains("이메일 주소 양식을 확인해주세요")){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(0,601));
+            } else if (e.getMessage().contains("이미 존재하는 닉네임입니다.")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(0,602));
+            } else if (e.getMessage().contains("이미 존재하는 이메일입니다.")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse(0,603));
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(0,600));
+            }
         }
     }
 
     @PostMapping("/emailFind")
-    public ResponseEntity<String> emailFind(@RequestBody UserDTO request) {
+    public ResponseEntity<?> emailFind(@RequestBody UserDTO request) {
         try {
-            Users user = userService.findEmail(request.getPhone(), request.getUserID());
+            Users user = userService.findEmail(request.getPhone(), request.getNickname());
 
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"result\": 0, \"resultCode\": 404}");
+                log.info("{\"result\": 0, \"resultCode\": 404}");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(0,404));
             }
 
-            return ResponseEntity.ok("{\"email\": \"" + user.getEmail() + "\"}");
+            log.info("{\"result\": 1, \"resultCode\": 200, \"email\": \"{}\"}", user.getEmail());
+            return ResponseEntity.ok(new ApiResponse2(1,200,user.getEmail()));
         } catch (Exception e) {
             log.error("Error during email find", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(0,600));
         }
     }
 
     @PostMapping("/passFind")
-    public ResponseEntity<String> passFind(@RequestBody UserDTO request) {
+    public ResponseEntity<?> passFind(@RequestBody UserDTO request) {
         try {
-            Users user = userService.findPass(request.getEmail(), request.getPhone(), request.getUserID());
+            Users user = userService.findPass(request.getEmail(), request.getPhone());
 
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"result\": 0, \"resultCode\": 404}");
+                log.info("{\"result\": 0, \"resultCode\": 404}");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(0,404));
             }
 
-            return ResponseEntity.ok("{\"email\": \"" + user.getEmail() + "\"}");
+            log.info("{\"result\": 1, \"resultCode\": 200, \"email\": \"{}\"}", user.getEmail());
+            return ResponseEntity.ok(new ApiResponse2(1,200,user.getEmail()));
         } catch (Exception e) {
             log.error("Error during password find", e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"result\": 0, \"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,600));
         }
     }
 
     @PutMapping("/passReset")
-    public ResponseEntity<String> resetPassword(@RequestBody ChangePasswordDTO request) {
+    public ResponseEntity<?> resetPassword(@RequestBody ChangePasswordDTO request) {
         try {
             Users user = userService.findUserByEmail(request.getEmail());
 
             if (user == null){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"result\": 0, \"resultCode\": 404}");
+                log.info("{\"result\": 0, \"resultCode\": 404}");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(0,404));
             }
 
             userService.changePassword(user.getEmail(), request.getPassword());
-            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
+            log.info("{\"result\": 1, \"resultCode\": 200}");
+            return ResponseEntity.ok(new ApiResponse(1,200));
         }catch (Exception e) {
             log.error("Error during password change", e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"result\": 0, \"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,600));
         }
     }
 
     @PutMapping("/infoChange/{email}")
-    public ResponseEntity<String> updateUser(@PathVariable("email") String email, @RequestBody @Valid UserDTO request) {
+    public ResponseEntity<?> updateUser(@PathVariable("email") String email, @RequestBody @Valid UserDTO request) {
         try {
             Users user = userService.findUserByEmail(email);
 
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"result\": 0, \"resultCode\": 404}");
+                log.info(new ApiResponse(0,404).toString());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(0,404));
             }
 
-            userService.update(email, request.getPhone(), request.getUserID());
-            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
+            userService.update(email, request.getPhone(), request.getNickname());
+            log.info("{\"result\": 1, \"resultCode\": 200}");
+            return ResponseEntity.ok(new ApiResponse(1,200));
         } catch (Exception e) {
             log.error("Error during user update", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(0,600));
         }
     }
 
     @DeleteMapping("/{email}")
-    public ResponseEntity<String> deleteUser(@PathVariable("email") String email) {
+    public ResponseEntity<?> deleteUser(@PathVariable("email") String email) {
         try {
             Users user = userService.findUserByEmail(email);
 
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"result\": 0, \"resultCode\": 404}");
+                log.info(new ApiResponse(0,404).toString());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(0,404));
             }
 
             userService.deleteUser(email);
-            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200}");
+            log.info("{\"result\": 0, \"resultCode\": 200}");
+            return ResponseEntity.ok(new ApiResponse(1,200));
         } catch (Exception e) {
             log.error("Error during user deletion", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(0,600));
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ApiResponse2 {
+        private int result;
+        private int resultCode;
+        private String data;
+
+        public ApiResponse2(int result, int resultCode, String  data) {
+            this.result = result;
+            this.resultCode = resultCode;
+            this.data = data;
         }
     }
 }

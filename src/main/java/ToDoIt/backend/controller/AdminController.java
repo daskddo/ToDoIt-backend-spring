@@ -1,10 +1,14 @@
 package ToDoIt.backend.controller;
 
+import ToDoIt.backend.DTO.ApiResponse;
 import ToDoIt.backend.domain.Role;
 import ToDoIt.backend.domain.Users;
 import ToDoIt.backend.jwt.JwtTokenUtil;
 import ToDoIt.backend.service.UserService;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +31,7 @@ public class AdminController {
     public ResponseEntity<?> getAllUsers(@RequestHeader("Authorization") String token) {
         try {
             if (token == null || !token.startsWith("Bearer ")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,403));
             }
 
             token = token.substring(7);
@@ -35,14 +39,31 @@ public class AdminController {
             Users user = userService.findUserByEmail(userEmail);
 
             if (user == null || user.getRole() != Role.ADMIN) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse(0,404));
             }
 
             List<Users> allUsers = userService.findAllUsers();
-            return ResponseEntity.ok(allUsers);
+
+            log.info("{\"result\": 1, \"resultCode\": 200, \"allUsers\": \"{}\"}", allUsers);
+            return ResponseEntity.ok(new ApiResponse2(1,200,allUsers));
         } catch (Exception e) {
             log.error("Error during fetching all users", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(0,600));
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ApiResponse2 {
+        private int result;
+        private int resultCode;
+        private List<Users> data;
+
+        public ApiResponse2(int result, int resultCode, List<Users> data) {
+            this.result = result;
+            this.resultCode = resultCode;
+            this.data = data;
         }
     }
 }

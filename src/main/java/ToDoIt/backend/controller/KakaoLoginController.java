@@ -1,11 +1,15 @@
 package ToDoIt.backend.controller;
 
+import ToDoIt.backend.DTO.ApiResponse;
 import ToDoIt.backend.DTO.KakaoUserInfoResponseDto;
 import ToDoIt.backend.domain.Users;
 import ToDoIt.backend.jwt.JwtTokenUtil;
 import ToDoIt.backend.service.KakaoService;
 import ToDoIt.backend.service.UserService;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +35,7 @@ public class KakaoLoginController {
 
     // access token을 json으로 받을 때
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
         try {
             String accessToken = request.get("accessToken");
             KakaoUserInfoResponseDto userInfo = kakaoService.getUserInfo(accessToken);
@@ -42,11 +46,27 @@ public class KakaoLoginController {
             Users user = userService.findOrCreateUser(userInfo);
             String jwtToken = jwtTokenUtil.generateAccessToken(user);
 
-            return ResponseEntity.ok("{\"result\": 1, \"resultCode\": 200, \"token\": \"" + jwtToken + "\"}");
+            log.info("{\"result\": 1, \"resultCode\": 200, \"token\": \"{}\"}", jwtToken);
+            return ResponseEntity.ok(new ApiResponse2(1,200,jwtToken));
         } catch (Exception e) {
             log.error("Error during login", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"result\": 0, \"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(0,600));
         }
 
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ApiResponse2 {
+        private int result;
+        private int resultCode;
+        private String data;
+
+        public ApiResponse2(int result, int resultCode, String  data) {
+            this.result = result;
+            this.resultCode = resultCode;
+            this.data = data;
+        }
     }
 }
