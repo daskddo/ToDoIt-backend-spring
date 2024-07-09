@@ -3,6 +3,7 @@ package ToDoIt.backend.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -26,15 +27,21 @@ public class PersonalSchedules {
     @NotEmpty(message = "Title is required")
     private String title;
 
-    @Column(name = "StartTime", nullable = false)
-    @NotNull(message = "Start time is required")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime startTime;
+    // allday(true,false) 컬럼 추가
+    @Column(name = "Allday", nullable = false)
+    @NotEmpty(message = "Allday is required")
+    @Pattern(regexp = "true|false", message = "Allday must be 'true' or 'false'")
+    private String allday;
 
+    // string으로 변경
+    @Column(name = "StartTime", nullable = false)
+    @NotEmpty(message = "Start time is required")
+    private String  startTime;
+
+    // string으로 변경
     @Column(name = "EndTime", nullable = false)
-    @NotNull(message = "End time is required")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime endTime;
+    @NotEmpty(message = "End time is required")
+    private String endTime;
 
     @Column(name = "Description")
     private String description;
