@@ -22,7 +22,7 @@ public class DatabaseTest {
     public void 개인일정테스트() {
         // 유저 생성
         Users user = new Users();
-        user.setUserID("test_user");
+        user.setNickname("test_user");
         user.setPassword("password");
         user.setEmail("test@example.com");
         user.setPhone("123456789");
@@ -32,8 +32,10 @@ public class DatabaseTest {
         // 개인 일정 생성
         PersonalSchedules personalSchedule = new PersonalSchedules();
         personalSchedule.setTitle("Test Schedule");
-        personalSchedule.setStartTime(LocalDateTime.now());
-        personalSchedule.setEndTime(LocalDateTime.now().plusHours(1));
+        personalSchedule.setAllday("false");
+        personalSchedule.setStartTime(String.valueOf(LocalDateTime.now()));
+        personalSchedule.setEndTime(String.valueOf(LocalDateTime.now().plusHours(1)));
+        personalSchedule.setUuid("uuid12");
         personalSchedule.setUser(user);
         personalSchedule.setColor("#AAAAAAA");
         entityManager.persist(personalSchedule);
@@ -43,7 +45,7 @@ public class DatabaseTest {
         // 유저 조회
         Users retrievedUser = entityManager.find(Users.class, user.getUserNUM());
         assertNotNull(retrievedUser);
-        assertEquals("test_user", retrievedUser.getUserID());
+        assertEquals("test_user", retrievedUser.getNickname());
 
         // 개인 일정 조회
         PersonalSchedules retrievedSchedule = entityManager.find(PersonalSchedules.class, personalSchedule.getPScheduleID());
