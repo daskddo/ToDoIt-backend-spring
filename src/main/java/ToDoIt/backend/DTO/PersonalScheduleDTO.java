@@ -11,9 +11,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class PersonalScheduleDTO {
     private Long pScheduleID;
+    private String uuid;
     private String title;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private String allday;
+    private String startTime;
+    private String endTime;
     private String description;
     private String color;
 }

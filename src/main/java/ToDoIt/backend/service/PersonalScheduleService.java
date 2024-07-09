@@ -25,7 +25,9 @@ public class PersonalScheduleService {
         // PersonalScheduleDTO로 변환
         return schedules.stream().map(schedule -> new PersonalScheduleDTO(
                 schedule.getPScheduleID(),
+                schedule.getUuid(),
                 schedule.getTitle(),
+                schedule.getAllday(),
                 schedule.getStartTime(),
                 schedule.getEndTime(),
                 schedule.getDescription(),
@@ -40,6 +42,8 @@ public class PersonalScheduleService {
         PersonalSchedules schedule = new PersonalSchedules();
         schedule.setUser(user);
         schedule.setTitle(scheduleDTO.getTitle());
+        schedule.setUuid(scheduleDTO.getUuid());
+        schedule.setAllday(scheduleDTO.getAllday());
         schedule.setStartTime(scheduleDTO.getStartTime());
         schedule.setEndTime(scheduleDTO.getEndTime());
         schedule.setDescription(scheduleDTO.getDescription());
@@ -52,6 +56,8 @@ public class PersonalScheduleService {
     public void updatePersonalSchedule(Long scheduleId, PersonalScheduleDTO scheduleDTO) {
         PersonalSchedules schedule = personalSchedulesRepository.findById(scheduleId).orElseThrow(() -> new IllegalArgumentException("Schedule not found"));
         schedule.setTitle(scheduleDTO.getTitle());
+        schedule.setUuid(scheduleDTO.getUuid());
+        schedule.setAllday(scheduleDTO.getAllday());
         schedule.setStartTime(scheduleDTO.getStartTime());
         schedule.setEndTime(scheduleDTO.getEndTime());
         schedule.setDescription(scheduleDTO.getDescription());
