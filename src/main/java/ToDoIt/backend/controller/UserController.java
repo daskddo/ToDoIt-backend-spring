@@ -35,7 +35,7 @@ public class UserController {
         if (user != null) {
             String token = jwtTokenUtil.generateAccessToken(user);
             log.info("{\"result\": 1, \"resultCode\": 200, \"token\": \"{}\"}", token);
-            return ResponseEntity.ok(new ApiResponse2(1,200,token));
+            return ResponseEntity.ok(new ApiResponse3(1,200,token));
         } else {
             log.info("{\"result\": 0, \"resultCode\": 600}");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,600));
@@ -171,12 +171,27 @@ public class UserController {
     public static class ApiResponse2 {
         private int result;
         private int resultCode;
-        private String data;
+        private String email;
 
-        public ApiResponse2(int result, int resultCode, String  data) {
+        public ApiResponse2(int result, int resultCode, String email) {
             this.result = result;
             this.resultCode = resultCode;
-            this.data = data;
+            this.email = email;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ApiResponse3 {
+        private int result;
+        private int resultCode;
+        private String token;
+
+        public ApiResponse3(int result, int resultCode, String token) {
+            this.result = result;
+            this.resultCode = resultCode;
+            this.token = token;
         }
     }
 }

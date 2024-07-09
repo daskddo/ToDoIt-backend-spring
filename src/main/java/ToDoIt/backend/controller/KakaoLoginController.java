@@ -61,12 +61,12 @@ public class KakaoLoginController {
     public static class ApiResponse2 {
         private int result;
         private int resultCode;
-        private String data;
+        private String token;
 
-        public ApiResponse2(int result, int resultCode, String  data) {
+        public ApiResponse2(int result, int resultCode, String token) {
             this.result = result;
             this.resultCode = resultCode;
-            this.data = data;
+            this.token = token;
         }
     }
 }
