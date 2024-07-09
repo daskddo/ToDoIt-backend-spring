@@ -30,9 +30,9 @@ public class UserService {
             throw new IllegalStateException("이미 존재하는 이메일입니다.");
         }
 
-        Users existingUserByUserID = userRepository.findByUserID(user.getUserID());
+        Users existingUserByUserID = userRepository.findByNickname(user.getNickname());
         if (existingUserByUserID != null) {
-            throw new IllegalStateException("이미 존재하는 사용자 ID입니다.");
+            throw new IllegalStateException("이미 존재하는 닉네임입니다.");
         }
     }
 
@@ -45,7 +45,7 @@ public class UserService {
 
         Users newUser = new Users();
         newUser.setEmail(userInfo.getKakaoAccount().getEmail());
-        newUser.setUserID(userInfo.getKakaoAccount().getProfile().getNickName());
+        newUser.setNickname(userInfo.getKakaoAccount().getProfile().getNickName());
         newUser.setPassword(passwordEncoder.encode("password")); // 기본 비밀번호
         newUser.setPhone("010-0000-0000"); // 기본 핸드폰 번호
         newUser.setRole(Role.USER); // 기본 역할 설정
@@ -70,19 +70,19 @@ public class UserService {
         return null;
     }
 
-    public Users findEmail(String phone, String userID) {
-        return userRepository.findByPhoneAndUserID(phone, userID);
+    public Users findEmail(String phone, String nickname) {
+        return userRepository.findByPhoneAndNickname(phone, nickname);
     }
 
-    public Users findPass(String email, String phone, String userID) {
-        return userRepository.findByEmailAndPhoneAndUserID(email, phone, userID);
+    public Users findPass(String email, String phone) {
+        return userRepository.findByEmailAndPhone(email, phone);
     }
 
     @Transactional
-    public void update(String email, String phone, String userID) {
+    public void update(String email, String phone, String nickname) {
         Users user = userRepository.findByEmail(email);
         user.setPhone(phone);
-        user.setUserID(userID);
+        user.setNickname(nickname);
     }
 
     @Transactional
