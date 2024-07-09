@@ -26,6 +26,7 @@ public class ToDoService {
         // ToDoDTO로 변환
         return toDos.stream().map(toDo -> new ToDoDTO(
                 toDo.getId(),
+                toDo.getUuid(),
                 toDo.getTask(),
                 toDo.getDueDate()
         )).collect(Collectors.toList());
@@ -38,6 +39,7 @@ public class ToDoService {
         // ToDoDTO로 변환
         return toDos.stream().map(toDo -> new ToDoDTO(
                 toDo.getId(),
+                toDo.getUuid(),
                 toDo.getTask(),
                 toDo.getDueDate()
         )).collect(Collectors.toList());
@@ -50,6 +52,7 @@ public class ToDoService {
         // ToDoDTO로 변환
         return toDos.stream().map(toDo -> new ToDoDTO(
                 toDo.getId(),
+                toDo.getUuid(),
                 toDo.getTask(),
                 toDo.getDueDate()
         )).collect(Collectors.toList());
@@ -61,6 +64,7 @@ public class ToDoService {
 
         ToDo toDo = new ToDo();
         toDo.setUser(user);
+        toDo.setUuid(toDoDTO.getUuid());
         toDo.setTask(toDoDTO.getTask());
         toDo.setDueDate(toDoDTO.getDueDate());
 
@@ -72,6 +76,7 @@ public class ToDoService {
         ToDo existingToDo = toDoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("ToDo not found"));
 
         existingToDo.setTask(toDoDTO.getTask());
+        existingToDo.setUuid(toDoDTO.getUuid());
         existingToDo.setDueDate(toDoDTO.getDueDate());
         toDoRepository.save(existingToDo);
     }

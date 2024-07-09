@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ToDoDTO {
     private Long id;
+    private String uuid;
     private String task;
     private LocalDate dueDate;
 }
