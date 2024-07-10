@@ -132,8 +132,8 @@ public class ToDoController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateToDo(@RequestHeader("Authorization") String token, @PathVariable("id") Long id, @RequestBody ToDoDTO toDoDTO) {
+    @PutMapping()
+    public ResponseEntity<?> updateToDo(@RequestHeader("Authorization") String token, @RequestBody ToDoDTO toDoDTO) {
         try {
             if (token == null || !token.startsWith("Bearer ")) {
                 log.info("{\"result\": 0, \"resultCode\": 403}");
@@ -148,7 +148,7 @@ public class ToDoController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,404));
             }
 
-            toDoService.updateToDoForUser(id, toDoDTO);
+            toDoService.updateToDoForUser(toDoDTO, userEmail);
             log.info("{\"result\": 1, \"resultCode\": 200}");
             return ResponseEntity.ok(new ApiResponse(1,200));
         } catch (Exception e) {
@@ -158,8 +158,8 @@ public class ToDoController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteToDo(@RequestHeader("Authorization") String token, @PathVariable("id") Long id) {
+    @DeleteMapping("/{uuid}")
+    public ResponseEntity<?> deleteToDo(@RequestHeader("Authorization") String token, @PathVariable("uuid") String uuid) {
         try {
             if (token == null || !token.startsWith("Bearer ")) {
                 log.info("{\"result\": 0, \"resultCode\": 403}");
@@ -174,7 +174,7 @@ public class ToDoController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,404));
             }
 
-            toDoService.deleteToDoForUser(id);
+            toDoService.deleteToDoForUser(uuid, userEmail);
             log.info("{\"result\": 1, \"resultCode\": 200}");
             return ResponseEntity.ok(new ApiResponse(1,200));
         } catch (Exception e) {

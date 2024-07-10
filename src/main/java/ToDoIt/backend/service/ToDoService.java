@@ -25,36 +25,36 @@ public class ToDoService {
 
         // ToDoDTO로 변환
         return toDos.stream().map(toDo -> new ToDoDTO(
-                toDo.getId(),
                 toDo.getUuid(),
-                toDo.getTask(),
-                toDo.getDueDate()
+                toDo.getTaskTitle(),
+                toDo.getTaskDate(),
+                toDo.getIsComplete()
         )).collect(Collectors.toList());
     }
 
     @Transactional
     public List<ToDoDTO> getTodayToDosForUser(String email, LocalDate date) {
-        List<ToDo> toDos = toDoRepository.findByUserEmailAndDueDate(email, date);
+        List<ToDo> toDos = toDoRepository.findByUserEmailAndTaskDate(email, date);
 
         // ToDoDTO로 변환
         return toDos.stream().map(toDo -> new ToDoDTO(
-                toDo.getId(),
                 toDo.getUuid(),
-                toDo.getTask(),
-                toDo.getDueDate()
+                toDo.getTaskTitle(),
+                toDo.getTaskDate(),
+                toDo.getIsComplete()
         )).collect(Collectors.toList());
     }
 
     @Transactional
     public List<ToDoDTO> getAnytimeTasks(String email) {
-        List<ToDo> toDos = toDoRepository.findByUserEmailAndDueDateIsNull(email);
+        List<ToDo> toDos = toDoRepository.findByUserEmailAndTaskDateIsNull(email);
 
         // ToDoDTO로 변환
         return toDos.stream().map(toDo -> new ToDoDTO(
-                toDo.getId(),
                 toDo.getUuid(),
-                toDo.getTask(),
-                toDo.getDueDate()
+                toDo.getTaskTitle(),
+                toDo.getTaskDate(),
+                toDo.getIsComplete()
         )).collect(Collectors.toList());
     }
 
@@ -65,24 +65,26 @@ public class ToDoService {
         ToDo toDo = new ToDo();
         toDo.setUser(user);
         toDo.setUuid(toDoDTO.getUuid());
-        toDo.setTask(toDoDTO.getTask());
-        toDo.setDueDate(toDoDTO.getDueDate());
+        toDo.setTaskTitle(toDoDTO.getTaskTitle());
+        toDo.setTaskDate(toDoDTO.getTaskDate());
+        toDo.setIsComplete(toDoDTO.getIsComplete());
 
         toDoRepository.save(toDo);
     }
 
     @Transactional
-    public void updateToDoForUser(Long id, ToDoDTO toDoDTO) {
-        ToDo existingToDo = toDoRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("ToDo not found"));
+    public void updateToDoForUser(ToDoDTO toDoDTO, String email) {
+        ToDo existingToDo = toDoRepository.findByUuidAndUserEmail(toDoDTO.getUuid(), email).orElseThrow(() -> new IllegalArgumentException("ToDo not found"));
 
-        existingToDo.setTask(toDoDTO.getTask());
+        existingToDo.setTaskTitle(toDoDTO.getTaskTitle());
+        existingToDo.setTaskDate(toDoDTO.getTaskDate());
         existingToDo.setUuid(toDoDTO.getUuid());
-        existingToDo.setDueDate(toDoDTO.getDueDate());
+        existingToDo.setIsComplete(toDoDTO.getIsComplete());
         toDoRepository.save(existingToDo);
     }
 
     @Transactional
-    public void deleteToDoForUser(Long id) {
-        toDoRepository.deleteById(id);
+    public void deleteToDoForUser(String uuid, String email) {
+        toDoRepository.deleteByUuidAndUserEmail(uuid, email);
     }
 }
