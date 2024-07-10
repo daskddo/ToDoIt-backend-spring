@@ -2,6 +2,7 @@ package ToDoIt.backend.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,15 +22,19 @@ public class ToDo {
     @JoinColumn(name = "UserNUM", nullable = false)
     private Users user;
 
-    @Column(name = "Task", nullable = false)
-    @NotEmpty(message = "Task is required")
-    private String task;
+    @Column(name = "TaskTitle", nullable = false)
+    @NotEmpty(message = "TaskTitle is required")
+    private String taskTitle;
 
-    @Column(name = "DueDate")
+    @Column(name = "TaskDate")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate dueDate;
+    private LocalDate taskDate;
 
-    // String uuid
     @Column(name = "Uuid")
     private String uuid;
+
+    @Column(name = "IsComplete", nullable = false)
+    @NotEmpty(message = "IsComplete is required")
+    @Pattern(regexp = "true|false", message = "IsComplete must be 'true' or 'false'")
+    private String isComplete;
 }

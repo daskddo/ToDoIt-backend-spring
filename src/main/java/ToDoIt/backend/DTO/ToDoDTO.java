@@ -10,8 +10,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ToDoDTO {
-    private Long id;
     private String uuid;
-    private String task;
-    private LocalDate dueDate;
+    private String taskTitle;
+    private LocalDate taskDate;
+    private String isComplete;
 }
