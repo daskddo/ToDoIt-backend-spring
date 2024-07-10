@@ -127,17 +127,23 @@ public class UserController {
         }
     }
 
-    @PutMapping("/infoChange/{email}")
-    public ResponseEntity<?> updateUser(@PathVariable("email") String email, @RequestBody @Valid UserDTO request) {
+    @PutMapping("/infoChange")
+    public ResponseEntity<?> updateUser(@RequestHeader("Authorization") String token, @RequestBody @Valid UserDTO request) {
         try {
-            Users user = userService.findUserByEmail(email);
+            if (token == null || !token.startsWith("Bearer ")) {
+                log.info("{\"result\": 0, \"resultCode\": 403}");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,403));
+            }
+            token = token.substring(7);
 
+            String userEmail = jwtTokenUtil.extractUsername(token);
+            Users user = userService.findUserByEmail(userEmail);
             if (user == null) {
-                log.info(new ApiResponse(0,404).toString());
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(0,404));
+                log.info("{\"result\": 0, \"resultCode\": 404}");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,404));
             }
 
-            userService.update(email, request.getPhone(), request.getNickname());
+            userService.update(userEmail, request.getPhone(), request.getNickname());
             log.info("{\"result\": 1, \"resultCode\": 200}");
             return ResponseEntity.ok(new ApiResponse(1,200));
         } catch (Exception e) {
@@ -146,17 +152,23 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/{email}")
-    public ResponseEntity<?> deleteUser(@PathVariable("email") String email) {
+    @DeleteMapping()
+    public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String token) {
         try {
-            Users user = userService.findUserByEmail(email);
+            if (token == null || !token.startsWith("Bearer ")) {
+                log.info("{\"result\": 0, \"resultCode\": 403}");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,403));
+            }
+            token = token.substring(7);
 
+            String userEmail = jwtTokenUtil.extractUsername(token);
+            Users user = userService.findUserByEmail(userEmail);
             if (user == null) {
-                log.info(new ApiResponse(0,404).toString());
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(0,404));
+                log.info("{\"result\": 0, \"resultCode\": 404}");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,404));
             }
 
-            userService.deleteUser(email);
+            userService.deleteUser(userEmail);
             log.info("{\"result\": 0, \"resultCode\": 200}");
             return ResponseEntity.ok(new ApiResponse(1,200));
         } catch (Exception e) {
