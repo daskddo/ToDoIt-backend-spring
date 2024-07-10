@@ -15,7 +15,6 @@ public class Users {
     @Column(name = "UserNUM")
     private Long userNUM;
 
-    // nickname으로 변경
     @Column(name = "Nickname", unique = true, nullable = false)
     @NotEmpty(message = "Nickname is required")
     private String nickname;
