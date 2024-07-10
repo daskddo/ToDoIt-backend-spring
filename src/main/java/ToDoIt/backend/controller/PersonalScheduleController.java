@@ -3,6 +3,7 @@ package ToDoIt.backend.controller;
 import ToDoIt.backend.DTO.ApiResponse;
 import ToDoIt.backend.DTO.PersonalScheduleDTO;
 import ToDoIt.backend.domain.Users;
+import ToDoIt.backend.jwt.JwtTokenUtil;
 import ToDoIt.backend.service.PersonalScheduleService;
 import ToDoIt.backend.service.UserService;
 import jakarta.validation.Valid;
@@ -20,21 +21,29 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users/{email}/schedules")
+@RequestMapping("/users/schedules")
 public class PersonalScheduleController {
     private final PersonalScheduleService personalScheduleService;
     private final UserService userService;
+    private final JwtTokenUtil jwtTokenUtil;
 
     @GetMapping
-    public ResponseEntity<?> getPersonalSchedules(@PathVariable("email") String email) {
+    public ResponseEntity<?> getPersonalSchedules(@RequestHeader("Authorization") String token) {
         try {
-            Users user = userService.findUserByEmail(email);
+            if (token == null || !token.startsWith("Bearer ")) {
+                log.info("{\"result\": 0, \"resultCode\": 403}");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,403));
+            }
+            token = token.substring(7);
+
+            String userEmail = jwtTokenUtil.extractUsername(token);
+            Users user = userService.findUserByEmail(userEmail);
             if (user == null) {
                 log.info("{\"result\": 0, \"resultCode\": 404}");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(0,404));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,404));
             }
 
-            List<PersonalScheduleDTO> personalSchedulesList = personalScheduleService.getPersonalSchedulesByEmail(email);
+            List<PersonalScheduleDTO> personalSchedulesList = personalScheduleService.getPersonalSchedulesByEmail(userEmail);
             log.info("{\"result\": 1, \"resultCode\": 200, \"data\": {}}", personalSchedulesList);
             return ResponseEntity.ok(new ApiResponse2(1, 200, personalSchedulesList));
         } catch (Exception e) {
@@ -45,15 +54,22 @@ public class PersonalScheduleController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createPersonalSchedule(@PathVariable("email") String email, @RequestBody @Valid PersonalScheduleDTO scheduleDTO) {
+    public ResponseEntity<?> createPersonalSchedule(@RequestHeader("Authorization") String token, @RequestBody @Valid PersonalScheduleDTO scheduleDTO) {
         try {
-            Users user = userService.findUserByEmail(email);
+            if (token == null || !token.startsWith("Bearer ")) {
+                log.info("{\"result\": 0, \"resultCode\": 403}");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,403));
+            }
+            token = token.substring(7);
+
+            String userEmail = jwtTokenUtil.extractUsername(token);
+            Users user = userService.findUserByEmail(userEmail);
             if (user == null) {
                 log.info("{\"result\": 0, \"resultCode\": 404}");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(0,404));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,404));
             }
 
-            personalScheduleService.createPersonalSchedule(email, scheduleDTO);
+            personalScheduleService.createPersonalSchedule(userEmail, scheduleDTO);
             log.info("{\"result\": 1, \"resultCode\": 200}");
             return ResponseEntity.ok(new ApiResponse(1,200));
         } catch (Exception e) {
@@ -63,16 +79,23 @@ public class PersonalScheduleController {
         }
     }
 
-    @PutMapping("/{pscheduleID}")
-    public ResponseEntity<?> updatePersonalSchedule(@PathVariable("email") String email, @PathVariable("pscheduleID") Long scheduleId, @RequestBody @Valid PersonalScheduleDTO scheduleDTO) {
+    @PutMapping()
+    public ResponseEntity<?> updatePersonalSchedule(@RequestHeader("Authorization") String token, @RequestBody @Valid PersonalScheduleDTO scheduleDTO) {
         try {
-            Users user = userService.findUserByEmail(email);
+            if (token == null || !token.startsWith("Bearer ")) {
+                log.info("{\"result\": 0, \"resultCode\": 403}");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,403));
+            }
+            token = token.substring(7);
+
+            String userEmail = jwtTokenUtil.extractUsername(token);
+            Users user = userService.findUserByEmail(userEmail);
             if (user == null) {
                 log.info("{\"result\": 0, \"resultCode\": 404}");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(0,404));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,404));
             }
 
-            personalScheduleService.updatePersonalSchedule(scheduleId, scheduleDTO);
+            personalScheduleService.updatePersonalSchedule(scheduleDTO, userEmail);
             log.info("{\"result\": 1, \"resultCode\": 200}");
             return ResponseEntity.ok(new ApiResponse(1,200));
         } catch (Exception e) {
@@ -82,16 +105,23 @@ public class PersonalScheduleController {
         }
     }
 
-    @DeleteMapping("/{pscheduleID}")
-    public ResponseEntity<?> deletePersonalSchedule(@PathVariable("email") String email, @PathVariable("pscheduleID") Long scheduleId) {
+    @DeleteMapping("/{uuid}")
+    public ResponseEntity<?> deletePersonalSchedule(@RequestHeader("Authorization") String token, @PathVariable("uuid") String uuid) {
         try {
-            Users user = userService.findUserByEmail(email);
+            if (token == null || !token.startsWith("Bearer ")) {
+                log.info("{\"result\": 0, \"resultCode\": 403}");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,403));
+            }
+            token = token.substring(7);
+
+            String userEmail = jwtTokenUtil.extractUsername(token);
+            Users user = userService.findUserByEmail(userEmail);
             if (user == null) {
                 log.info("{\"result\": 0, \"resultCode\": 404}");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(0,404));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,404));
             }
 
-            personalScheduleService.deletePersonalSchedule(scheduleId);
+            personalScheduleService.deletePersonalSchedule(uuid, userEmail);
             log.info("{\"result\": 1, \"resultCode\": 200}");
             return ResponseEntity.ok(new ApiResponse(1,200));
         } catch (Exception e) {

@@ -24,7 +24,6 @@ public class PersonalScheduleService {
 
         // PersonalScheduleDTO로 변환
         return schedules.stream().map(schedule -> new PersonalScheduleDTO(
-                schedule.getPScheduleID(),
                 schedule.getUuid(),
                 schedule.getTitle(),
                 schedule.getAllday(),
@@ -53,8 +52,8 @@ public class PersonalScheduleService {
     }
 
     @Transactional
-    public void updatePersonalSchedule(Long scheduleId, PersonalScheduleDTO scheduleDTO) {
-        PersonalSchedules schedule = personalSchedulesRepository.findById(scheduleId).orElseThrow(() -> new IllegalArgumentException("Schedule not found"));
+    public void updatePersonalSchedule(PersonalScheduleDTO scheduleDTO, String email) {
+        PersonalSchedules schedule = personalSchedulesRepository.findByUuidAndUserEmail(scheduleDTO.getUuid(), email).orElseThrow(() -> new IllegalArgumentException("Schedule not found"));
         schedule.setTitle(scheduleDTO.getTitle());
         schedule.setUuid(scheduleDTO.getUuid());
         schedule.setAllday(scheduleDTO.getAllday());
@@ -67,7 +66,7 @@ public class PersonalScheduleService {
     }
 
     @Transactional
-    public void deletePersonalSchedule(Long scheduleId) {
-        personalSchedulesRepository.deleteById(scheduleId);
+    public void deletePersonalSchedule(String uuid, String email) {
+        personalSchedulesRepository.deleteByUuidAndUserEmail(uuid, email);
     }
 }
