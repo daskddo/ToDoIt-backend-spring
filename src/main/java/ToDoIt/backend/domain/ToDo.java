@@ -5,9 +5,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -27,8 +24,7 @@ public class ToDo {
     private String taskTitle;
 
     @Column(name = "TaskDate")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate taskDate;
+    private String taskDate;
 
     @Column(name = "Uuid")
     private String uuid;
@@ -37,4 +33,8 @@ public class ToDo {
     @NotEmpty(message = "IsComplete is required")
     @Pattern(regexp = "true|false", message = "IsComplete must be 'true' or 'false'")
     private String isComplete;
+
+    @Column(name = "Color", nullable = false)
+    @NotEmpty(message = "Color is required")
+    private String color;
 }
