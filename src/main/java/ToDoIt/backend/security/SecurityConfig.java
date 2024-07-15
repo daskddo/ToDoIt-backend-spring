@@ -48,9 +48,6 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .requiresChannel(channel -> channel
-                        .anyRequest().requiresSecure()
                 );
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
