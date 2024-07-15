@@ -44,7 +44,7 @@ public class ToDoController {
             }
 
             List<ToDoDTO> allToDosForUser = toDoService.getAllToDosForUser(userEmail);
-            log.info("{\"result\": 1, \"resultCode\": 200, \"data\": {}}", allToDosForUser);
+            log.info("{\"result\": 1, \"resultCode\": 200, \"toDoData\": {}}", allToDosForUser);
             return ResponseEntity.ok(new ApiResponse2(1,200,allToDosForUser));
         } catch (Exception e) {
             log.error("Error during fetching all todos", e);
@@ -70,8 +70,8 @@ public class ToDoController {
             }
 
             LocalDate today = LocalDate.now();
-            List<ToDoDTO> todayToDosForUser = toDoService.getTodayToDosForUser(userEmail, today);
-            log.info("{\"result\": 1, \"resultCode\": 200, \"data\": {}}", todayToDosForUser);
+            List<ToDoDTO> todayToDosForUser = toDoService.getTodayToDosForUser(userEmail, today.toString());
+            log.info("{\"result\": 1, \"resultCode\": 200, \"toDoData\": {}}", todayToDosForUser);
             return ResponseEntity.ok(new ApiResponse2(1,200,todayToDosForUser));
         } catch (Exception e) {
             log.error("Error during fetching todos", e);
@@ -97,7 +97,7 @@ public class ToDoController {
             }
 
             List<ToDoDTO> anytimeTasks = toDoService.getAnytimeTasks(userEmail);
-            log.info("{\"result\": 1, \"resultCode\": 200, \"data\": {}}", anytimeTasks);
+            log.info("{\"result\": 1, \"resultCode\": 200, \"toDoData\": {}}", anytimeTasks);
             return ResponseEntity.ok(new ApiResponse2(1,200,anytimeTasks));
         } catch (Exception e) {
             log.error("Error during fetching todos", e);
@@ -106,6 +106,7 @@ public class ToDoController {
         }
     }
 
+    // 시분초 떼고 연월일만 저장
     @PostMapping
     public ResponseEntity<?> createToDo(@RequestHeader("Authorization") String token, @RequestBody ToDoDTO toDoDTO) {
         try {
@@ -190,12 +191,12 @@ public class ToDoController {
     public static class ApiResponse2 {
         private int result;
         private int resultCode;
-        private List<ToDoDTO> data;
+        private List<ToDoDTO> toDoData;
 
-        public ApiResponse2(int result, int resultCode, List<ToDoDTO> data) {
+        public ApiResponse2(int result, int resultCode, List<ToDoDTO> toDoData) {
             this.result = result;
             this.resultCode = resultCode;
-            this.data = data;
+            this.toDoData = toDoData;
         }
     }
 }

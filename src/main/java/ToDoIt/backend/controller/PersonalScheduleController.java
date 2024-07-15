@@ -44,7 +44,7 @@ public class PersonalScheduleController {
             }
 
             List<PersonalScheduleDTO> personalSchedulesList = personalScheduleService.getPersonalSchedulesByEmail(userEmail);
-            log.info("{\"result\": 1, \"resultCode\": 200, \"data\": {}}", personalSchedulesList);
+            log.info("{\"result\": 1, \"resultCode\": 200, \"scheduleData\": {}}", personalSchedulesList);
             return ResponseEntity.ok(new ApiResponse2(1, 200, personalSchedulesList));
         } catch (Exception e) {
             log.error("Error during fetching schedules", e);
@@ -138,12 +138,12 @@ public class PersonalScheduleController {
     public static class ApiResponse2 {
         private int result;
         private int resultCode;
-        private List<PersonalScheduleDTO> data;
+        private List<PersonalScheduleDTO> scheduleData;
 
-        public ApiResponse2(int result, int resultCode, List<PersonalScheduleDTO> data) {
+        public ApiResponse2(int result, int resultCode, List<PersonalScheduleDTO> scheduleData) {
             this.result = result;
             this.resultCode = resultCode;
-            this.data = data;
+            this.scheduleData = scheduleData;
         }
     }
 }

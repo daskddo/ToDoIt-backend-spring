@@ -58,12 +58,12 @@ public class AdminController {
     public static class ApiResponse2 {
         private int result;
         private int resultCode;
-        private List<Users> data;
+        private List<Users> adminData;
 
-        public ApiResponse2(int result, int resultCode, List<Users> data) {
+        public ApiResponse2(int result, int resultCode, List<Users> adminData) {
             this.result = result;
             this.resultCode = resultCode;
-            this.data = data;
+            this.adminData = adminData;
         }
     }
 }
