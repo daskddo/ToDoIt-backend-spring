@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,20 +27,24 @@ public class ToDoService {
                 toDo.getUuid(),
                 toDo.getTaskTitle(),
                 toDo.getTaskDate(),
-                toDo.getIsComplete()
+                toDo.getIsComplete(),
+                toDo.getColor()
         )).collect(Collectors.toList());
     }
 
     @Transactional
-    public List<ToDoDTO> getTodayToDosForUser(String email, LocalDate date) {
-        List<ToDo> toDos = toDoRepository.findByUserEmailAndTaskDate(email, date);
+    public List<ToDoDTO> getTodayToDosForUser(String email, String date) {
+        List<ToDo> toDos = toDoRepository.findAllByUserEmail(email);
 
         // ToDoDTO로 변환
-        return toDos.stream().map(toDo -> new ToDoDTO(
-                toDo.getUuid(),
-                toDo.getTaskTitle(),
-                toDo.getTaskDate(),
-                toDo.getIsComplete()
+        return toDos.stream()
+                .filter(toDo -> toDo.getTaskDate() != null && toDo.getTaskDate().startsWith(date))
+                .map(toDo -> new ToDoDTO(
+                    toDo.getUuid(),
+                    toDo.getTaskTitle(),
+                    toDo.getTaskDate(),
+                    toDo.getIsComplete(),
+                    toDo.getColor()
         )).collect(Collectors.toList());
     }
 
@@ -54,7 +57,8 @@ public class ToDoService {
                 toDo.getUuid(),
                 toDo.getTaskTitle(),
                 toDo.getTaskDate(),
-                toDo.getIsComplete()
+                toDo.getIsComplete(),
+                toDo.getColor()
         )).collect(Collectors.toList());
     }
 
@@ -62,12 +66,20 @@ public class ToDoService {
     public void createToDoForUser(String email, ToDoDTO toDoDTO) {
         Users user = userRepository.findByEmail(email);
 
+        // taskDate에서 date부분 추출
+        String taskDate = toDoDTO.getTaskDate();
+        String formattedDate = null;
+        if (taskDate != null && taskDate.length() >= 10) {
+            formattedDate = taskDate.substring(0, 10);
+        }
+
         ToDo toDo = new ToDo();
         toDo.setUser(user);
         toDo.setUuid(toDoDTO.getUuid());
         toDo.setTaskTitle(toDoDTO.getTaskTitle());
-        toDo.setTaskDate(toDoDTO.getTaskDate());
+        toDo.setTaskDate(formattedDate);
         toDo.setIsComplete(toDoDTO.getIsComplete());
+        toDo.setColor(toDoDTO.getColor());
 
         toDoRepository.save(toDo);
     }
@@ -76,10 +88,18 @@ public class ToDoService {
     public void updateToDoForUser(ToDoDTO toDoDTO, String email) {
         ToDo existingToDo = toDoRepository.findByUuidAndUserEmail(toDoDTO.getUuid(), email).orElseThrow(() -> new IllegalArgumentException("ToDo not found"));
 
+        // taskDate에서 date부분 추출
+        String taskDate = toDoDTO.getTaskDate();
+        String formattedDate = null;
+        if (taskDate != null && taskDate.length() >= 10) {
+            formattedDate = taskDate.substring(0, 10);
+        }
+
         existingToDo.setTaskTitle(toDoDTO.getTaskTitle());
-        existingToDo.setTaskDate(toDoDTO.getTaskDate());
+        existingToDo.setTaskDate(formattedDate);
         existingToDo.setUuid(toDoDTO.getUuid());
         existingToDo.setIsComplete(toDoDTO.getIsComplete());
+        existingToDo.setColor(toDoDTO.getColor());
         toDoRepository.save(existingToDo);
     }
 
