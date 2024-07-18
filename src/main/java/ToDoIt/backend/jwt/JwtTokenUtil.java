@@ -17,8 +17,11 @@ public class JwtTokenUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration}")
-    private long expiration;
+    @Value("${jwt.access-expiration}")
+    private long accessExpiration;
+
+    @Value("${jwt.refresh-expiration}")
+    private long refreshExpiration;
 
     private Key key;
 
@@ -34,7 +37,17 @@ public class JwtTokenUtil {
                 .claim("role", user.getRole().name())
                 .setIssuer("ToDoIt")
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setExpiration(new Date(System.currentTimeMillis() + accessExpiration))
+                .signWith(key)
+                .compact();
+    }
+
+    public String generateRefreshToken(Users user) {
+        return Jwts.builder()
+                .setSubject(user.getEmail())
+                .setIssuer("ToDoIt")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpiration))
                 .signWith(key)
                 .compact();
     }

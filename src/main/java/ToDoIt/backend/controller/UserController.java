@@ -33,12 +33,46 @@ public class UserController {
         Users user = userService.login(request.getEmail(), request.getPassword());
 
         if (user != null) {
-            String token = jwtTokenUtil.generateAccessToken(user);
-            log.info("{\"result\": 1, \"resultCode\": 200, \"token\": \"{}\"}", token);
-            return ResponseEntity.ok(new ApiResponse3(1,200,token));
+            String accessToken = jwtTokenUtil.generateAccessToken(user);
+            String refreshToken = jwtTokenUtil.generateRefreshToken(user);
+
+            log.info("{\"result\": 1, \"resultCode\": 200, \"accessToken\": \"{}\", \"refreshToken\": \"{}\"}", accessToken, refreshToken);
+            return ResponseEntity.ok(new ApiResponse4(1,200, accessToken, refreshToken));
         } else {
             log.info("{\"result\": 0, \"resultCode\": 600}");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,600));
+        }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestHeader("Authorization") String token) {
+        try {
+            if (token == null || !token.startsWith("Bearer ")) {
+                log.info("Invalid token format");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,403));
+            }
+            token = token.substring(7);
+
+            if (!jwtTokenUtil.validate(token)) {
+                log.info("Invalid or expired refresh token");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0, 403));
+            }
+
+            String userEmail = jwtTokenUtil.extractUsername(token);
+            Users user = userService.findUserByEmail(userEmail);
+            if (user == null) {
+                log.info("{\"result\": 0, \"resultCode\": 404}");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(0,404));
+            }
+
+            String newAccessToken = jwtTokenUtil.generateAccessToken(user);
+
+            log.info("{\"result\": 1, \"resultCode\": 200, \"token\": \"{}\"}", newAccessToken);
+            return ResponseEntity.ok(new ApiResponse3(1,200,newAccessToken));
+        }catch (Exception e) {
+            log.error("Error during generating refresh token", e);
+            log.info("{\"result\": 0, \"resultCode\": 600}");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse(0,600));
         }
     }
 
@@ -204,6 +238,23 @@ public class UserController {
             this.result = result;
             this.resultCode = resultCode;
             this.token = token;
+        }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ApiResponse4 {
+        private int result;
+        private int resultCode;
+        private String accessToken;
+        private String refreshToken;
+
+        public ApiResponse4(int result, int resultCode, String accessToken, String refreshToken) {
+            this.result = result;
+            this.resultCode = resultCode;
+            this.accessToken = accessToken;
+            this.refreshToken = refreshToken;
         }
     }
 }
